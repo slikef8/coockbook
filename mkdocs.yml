@@ -1,5 +1,7 @@
 site_name: Książka Kucharska
 site_description: Prywatna kolekcja przepisów
+docs_dir: '.'
+
 theme:
   name: material
   language: pl
