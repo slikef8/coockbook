@@ -12,7 +12,7 @@ plugins:
   - search
   - gen-files:
       scripts:
-	    - gen_index.py
+        - gen_index.py
   - awesome-pages:
       collapse_single_pages: false
 
