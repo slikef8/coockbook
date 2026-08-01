@@ -1,0 +1,93 @@
+name: "CI/CD: Publikacja Książki Kucharskiej"
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout kodu
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Konfiguracja Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalacja MkDocs i wtyczek
+        run: |
+          pip install mkdocs-material mkdocs-awesome-pages-plugin
+
+      - name: Instalacja Pandoc i LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended texlive-lang-polish
+
+      - name: Przygotowanie zbiorczego pliku Markdown pod PDF
+        run: |
+          echo "---" > full_cookbook.md
+          echo "title: Moja Książka Kucharska" >> full_cookbook.md
+          echo "author: Wygenerowano automatycznie" >> full_cookbook.md
+          echo "lang: pl-PL" >> full_cookbook.md
+          echo "toc-title: Spis Treści" >> full_cookbook.md
+          echo "---" >> full_cookbook.md
+          
+          # Iteracja po katalogach z przepisami (omija ukryte katalogi jak .github czy .git)
+          for dir in $(find . -maxdepth 1 -type d -not -path '*/.*' -not -path '.' | sort); do
+            category=$(basename "$dir")
+            echo -e "\n\n# Rozdział: $category\n" >> full_cookbook.md
+            
+            for file in "$dir"/*.md; do
+              if [ -f "$file" ]; then
+                echo -e "\n" >> full_cookbook.md
+                cat "$file" >> full_cookbook.md
+                echo -e "\n\n\\newpage" >> full_cookbook.md
+              fi
+            done
+          done
+
+      - name: Generowanie PDF za pomocą Pandoc
+        run: |
+          pandoc full_cookbook.md -o ksiazka_kucharska.pdf \
+            --toc \
+            --toc-depth=2 \
+            --pdf-engine=xelatex \
+            -V geometry:margin=2.5cm \
+            -V mainfont="DejaVu Serif" \
+            -V footer-left="Licencja: CC BY-NC-SA 4.0" \
+            -V footer-right="Strona \$p\$ z \$N\$"
+
+      - name: Budowanie strony statycznej (MkDocs)
+        run: mkdocs build
+
+      - name: Kopiowanie PDF do folderu strony WWW
+        run: cp ksiazka_kucharska.pdf site/
+
+      # Zapisujemy PDF jako Artefakt (przydatne do pobrania z poziomu akcji na develop/PR)
+      - name: Zapisz PDF jako artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ksiazka_kucharska.pdf
+          path: ksiazka_kucharska.pdf
+
+      # Deploy na GitHub Pages WYŁĄCZNIE po pushu/merge do gałęzi master
+      - name: Deploy na GitHub Pages (tylko master)
+        if: github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site
+          branch: gh-pages
