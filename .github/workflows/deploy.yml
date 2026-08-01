@@ -47,7 +47,7 @@ jobs:
           echo "---" >> full_cookbook.md
           
           # Iteracja po katalogach z przepisami (omija ukryte katalogi jak .github czy .git)
-          for dir in $(find . -maxdepth 1 -type d -not -path '*/.*' -not -path '.' | sort); do
+          for dir in $(find ./docs -maxdepth 1 -type d -not -path '*/.*' -not -path './docs' | sort); do
             category=$(basename "$dir")
             echo -e "\n\n# Rozdział: $category\n" >> full_cookbook.md
             
