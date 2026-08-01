@@ -1,0 +1,15 @@
+site_name: Książka Kucharska
+site_description: Prywatna kolekcja przepisów
+theme:
+  name: material
+  language: pl
+  palette:
+    primary: deep orange
+    accent: amber
+
+plugins:
+  - search
+  - awesome-pages
+
+nav:
+  - Strona Główna: index.md
