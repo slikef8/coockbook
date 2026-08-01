@@ -10,7 +10,6 @@ theme:
 
 plugins:
   - search
-  - awesome-pages
+  - awesome-pages:
+      collapse_single_pages: false
 
-nav:
-  - Strona Główna: index.md
