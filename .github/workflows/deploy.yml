@@ -30,7 +30,7 @@ jobs:
 
       - name: Instalacja MkDocs i wtyczek
         run: |
-          pip install mkdocs-material mkdocs-awesome-pages-plugin
+          pip install mkdocs-material mkdocs-awesome-pages-plugin mkdocs-gen-files
 
       - name: Instalacja Pandoc i LaTeX
         run: |
