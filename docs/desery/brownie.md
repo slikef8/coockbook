@@ -15,6 +15,8 @@ category: "Desery"
  * 100 g kakao
  * pół łyżeczki soli
 
+ * blacha 24x24 cm
+
 
 
 
